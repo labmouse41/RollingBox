@@ -186,7 +186,7 @@ bool ABoxCharacter::CastLineToBottom(const FVector& OffSet)
 	AActor* ActorToIgnore = nullptr;
 
 	// 액터를 가져오는 방법에 따라 ActorToIgnore를 설정합니다.
-	ActorToIgnore = GetWorld()->SpawnActor<AObstacle>(/* 액터 생성 매개변수 */);
+//	ActorToIgnore = GetWorld()->SpawnActor<AObstacle>(/* 액터 생성 매개변수 */);
 
 	if (ActorToIgnore)
 	{
