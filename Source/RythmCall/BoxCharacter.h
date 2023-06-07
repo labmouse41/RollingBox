@@ -33,7 +33,6 @@ struct FLengthSquaredFromComponentToPointReturn
 	USceneComponent* OutComponent;
 };
 
-
 UCLASS()
 class RYTHMCALL_API ABoxCharacter : public APawn
 {
@@ -72,7 +71,7 @@ public:
 	class UCameraComponent* FollowCamera;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cube")
-	double Accel;
+	float Accel;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cube")
 	float MaxSpeed;
@@ -110,12 +109,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cube")
 	TArray<class UArrowComponent*> Arrows;
 
-	UFUNCTION(BlueprintCallable, Category = "Pin Sequence")
-	void ActivatePinsSequentially(const TArray<int32>& PinOrder,float DeltaSeconds);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Particles")
+	class UNiagaraComponent* ParticleOnJump;
 
+	UPROPERTY(EditAnywhere, Category = "Niagara")
+	float InitialForce;
 
+	UPROPERTY(EditAnywhere, Category = "Niagara")
+	float SpawnNumber;
 
-	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -131,7 +133,7 @@ protected:
 
 private:
 
-	float NearestLength= 99999999999.0f;
+	float NearestLength = 99999999999.0f;
 
 	float AirTime = 0.0f;
 
@@ -170,4 +172,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void MaxSpeedByHit();
+
+	UFUNCTION(BlueprintCallable, Category = "Pin Sequence")
+	void ActivatePinsSequentially(const TArray<int32>& PinOrder, float DeltaSeconds);
+
+	UFUNCTION()
+	void PlayJumpParticlesOnPoint(const FVector& PlayLocation, USceneComponent* CheckVelocityHere);
 };

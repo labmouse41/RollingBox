@@ -11,6 +11,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/PrimitiveComponent.h"
 #include "Components/ArrowComponent.h"
+#include "NiagaraComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "PhysicsEngine/PhysicsHandleComponent.h"
@@ -55,12 +56,16 @@ ABoxCharacter::ABoxCharacter()
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 1500.0f; // The camera follows at this distance behind the character	
-CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+
+	ParticleOnJump = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NiagaraComponent"));
+	ParticleOnJump->SetupAttachment(RootComponent); // 적절한 Attachment 설정
+	
 
 	Arrows.SetNum(8);
 
@@ -127,11 +132,33 @@ void ABoxCharacter::ActivatePinsSequentially(const TArray<int32>& PinOrder,float
 	}
 }
 
+void ABoxCharacter::PlayJumpParticlesOnPoint(const FVector& PlayLocation, USceneComponent* CheckVelocityHere)
+{
+	if (ParticleOnJump)
+	{
+		ParticleOnJump->SetRelativeLocation(PlayLocation);
+		Cube->GetPhysicsLinearVelocityAtPoint(CheckVelocityHere->GetRelativeLocation());
+		FVector Param = Cube->GetPhysicsLinearVelocityAtPoint(CheckVelocityHere->GetRelativeLocation()) * 0.01;
+		ParticleOnJump->SetVectorParameter(FName("InheritVelocity"), Param);
+		ParticleOnJump->ResetSystem();
+		SetAirTime(0.0);
+	}
+}
+
 // Called when the game starts or when spawned
 void ABoxCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
+
+	ParticleOnJump->RegisterComponent();
+	if (ParticleOnJump)
+	{
+		// Niagara 컴포넌트에 사용자 지정 파라미터 설정
+		ParticleOnJump->SetFloatParameter(FName("InitialForce"), InitialForce);
+		ParticleOnJump->SetFloatParameter(FName("SpawnNumber"), SpawnNumber);
+	}
+
 
 	//Add Input Mapping Context
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
@@ -141,6 +168,8 @@ void ABoxCharacter::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+
+	
 }
 
 // Called every frame
@@ -258,7 +287,7 @@ void ABoxCharacter::CapMaxSpeed()
 		FVector LinearVelocity = Cube->GetPhysicsLinearVelocity();
 		//비교를 위해 vectorlength-> float로 변환
 		float VelocityMagnitude = LinearVelocity.Size();
-		MaxSpeed = 777.0f;
+		MaxSpeed = 1222.0f;
 
 		// 최대 속도를 벡터로 변환
 		FVector MaxSpeedVector = FVector(MaxSpeed, MaxSpeed, MaxSpeed);
@@ -336,6 +365,8 @@ void ABoxCharacter::Jump(const FInputActionValue& Value)
 
 		// 선형 속도 설정 함수 호출
 		Cube->SetPhysicsLinearVelocity(NewLinearVelocity);
+
+		PlayJumpParticlesOnPoint(OnGround().TouchingThis->GetRelativeLocation(), OnGround().TouchingThis);
 	}
 	
 }
@@ -393,7 +424,7 @@ void ABoxCharacter::AirTimeControl(float DeltaSeconds)
 
 void ABoxCharacter::MaxSpeedByHit()
 {
-	MaxSpeedByHitValue = 1111.0f;
+	MaxSpeedByHitValue = 1888.0f;
 	FVector LinearVelocity = Cube->GetPhysicsLinearVelocity();
 	float VelocityLength = LinearVelocity.Size();
 	if (VelocityLength > 0)
