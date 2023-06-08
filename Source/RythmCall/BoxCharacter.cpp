@@ -215,7 +215,7 @@ bool ABoxCharacter::CastLineToBottom(const FVector& OffSet)
 	AActor* ActorToIgnore = nullptr;
 
 	// 액터를 가져오는 방법에 따라 ActorToIgnore를 설정합니다.
-//	ActorToIgnore = GetWorld()->SpawnActor<AObstacle>(/* 액터 생성 매개변수 */);
+	ActorToIgnore = GetWorld()->SpawnActor<AObstacle>();
 
 	if (ActorToIgnore)
 	{
@@ -238,7 +238,7 @@ bool ABoxCharacter::CastLineToBottom(const FVector& OffSet)
 	bool bHit = GetWorld()->LineTraceSingleByObjectType(HitResult, OffSet, EndPoint, ObjectParams, TraceParams);
 	
 	// Debug draw the line trace
-	DrawDebugLine(GetWorld(), OffSet, EndPoint, FColor::Red, true, 2.0f, 0, 0.1f);
+	//DrawDebugLine(GetWorld(), OffSet, EndPoint, FColor::Red, true, 2.0f, 0, 0.1f);
 	
 	return bHit;
 	
@@ -305,6 +305,7 @@ void ABoxCharacter::CapMaxSpeed()
 
 void ABoxCharacter::Move(const FInputActionValue& Value)
 {
+
 	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
@@ -353,11 +354,10 @@ void ABoxCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-void ABoxCharacter::Jump(const FInputActionValue& Value)
+void ABoxCharacter::Jump()
 {
-	bool JumpActionValue = Value.Get<bool>();
-	APlayerController* PlayerController = Cast<APlayerController>(GetController());
-	if (PlayerController&& Cube&& OnGround().ReturnValue)
+	
+	if (Cube&& OnGround().ReturnValue)
 	{
 		JumpForce = 777.0f;
 		FVector LinearVelocity = Cube->GetPhysicsLinearVelocity();

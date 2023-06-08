@@ -122,14 +122,14 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	/** Called for movement input */
+	UFUNCTION(BlueprintCallable)
 	void Move(const FInputActionValue& Value);
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 
-	UFUNCTION()
-	void Jump(const FInputActionValue& Value);
+	UFUNCTION(Blueprintcallable)
+	void Jump();
 
 private:
 
