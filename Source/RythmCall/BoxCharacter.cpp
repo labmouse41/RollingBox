@@ -16,6 +16,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "PhysicsEngine/PhysicsHandleComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "InputMappingContext.h"
 #include "DrawDebugHelpers.h"
 
@@ -113,7 +114,7 @@ void ABoxCharacter::SetAirTime(float NewAirTime)
 
 
 //sequence node
-void ABoxCharacter::ActivatePinsSequentially(const TArray<int32>& PinOrder,float DeltaSeconds)
+void ABoxCharacter::ActivatePinsSequentially(const TArray<int32>& PinOrder, float DeltaSeconds)
 {
 	for (int32 PinIndex : PinOrder)
 	{
@@ -126,9 +127,20 @@ void ABoxCharacter::ActivatePinsSequentially(const TArray<int32>& PinOrder,float
 		{
 			// 인덱스 1번 핀에 실행해야 할 함수를 호출합니다.
 			AirTimeControl(DeltaSeconds);
-			
+
 		}
-		
+
+	}
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AObstacle::StaticClass(), ActorsToIgnore);
+
+	for (AActor* Actor : ActorsToIgnore)
+	{
+		AObstacle* Obstacle = Cast<AObstacle>(Actor);
+		if (Obstacle != nullptr)
+		{
+			// OtherObstacles를 Obstacle의 클래스에 있는 배열 변수에 추가
+			Obstacle->OtherObstacles.Append(ActorsToIgnore);
+		}
 	}
 }
 
@@ -168,8 +180,17 @@ void ABoxCharacter::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
-
 	
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AObstacle::StaticClass(), ActorsToIgnore);
+
+	for (AActor* Actor : ActorsToIgnore)
+	{
+		AObstacle* Obstacle = Cast<AObstacle>(Actor);
+		if (Obstacle != nullptr)
+		{
+			Obstacle->OtherObstacles = ActorsToIgnore;
+		}
+	}
 }
 
 // Called every frame
@@ -212,14 +233,14 @@ bool ABoxCharacter::CastLineToBottom(const FVector& OffSet)
 	TraceParams.bTraceComplex = false;
 	TraceParams.AddIgnoredActor(this);
 
-	AActor* ActorToIgnore = nullptr;
+	//AActor* ActorToIgnore = nullptr;
 
-	// 액터를 가져오는 방법에 따라 ActorToIgnore를 설정합니다.
-	ActorToIgnore = GetWorld()->SpawnActor<AObstacle>();
+	//// 액터를 가져오는 방법에 따라 ActorToIgnore를 설정합니다.
+	//ActorToIgnore = GetWorld()->SpawnActor<AObstacle>();
 
-	if (ActorToIgnore)
+	if (ActorsToIgnore.IsValidIndex(0))
 	{
-		TraceParams.AddIgnoredActor(ActorToIgnore);
+		TraceParams.AddIgnoredActors(ActorsToIgnore);
 	}
 	;
 	// Set up the object query parameters

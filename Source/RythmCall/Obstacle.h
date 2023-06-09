@@ -23,6 +23,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere)
-	TArray<AActor*> Obstacles;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Obstacle")
+	TArray<AActor*> OtherObstacles;
 };

@@ -118,6 +118,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Niagara")
 	float SpawnNumber;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Obstacle")
+	TArray<class AActor*> ActorsToIgnore;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
