@@ -131,17 +131,7 @@ void ABoxCharacter::ActivatePinsSequentially(const TArray<int32>& PinOrder, floa
 		}
 
 	}
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AObstacle::StaticClass(), ActorsToIgnore);
-
-	for (AActor* Actor : ActorsToIgnore)
-	{
-		AObstacle* Obstacle = Cast<AObstacle>(Actor);
-		if (Obstacle != nullptr)
-		{
-			// OtherObstacles를 Obstacle의 클래스에 있는 배열 변수에 추가
-			Obstacle->OtherObstacles.Append(ActorsToIgnore);
-		}
-	}
+	
 }
 
 void ABoxCharacter::PlayJumpParticlesOnPoint(const FVector& PlayLocation, USceneComponent* CheckVelocityHere)
@@ -180,19 +170,21 @@ void ABoxCharacter::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+	TArray<AActor*> AllActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AObstacle::StaticClass(), AllActors);
 	
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AObstacle::StaticClass(), ActorsToIgnore);
-
-	for (AActor* Actor : ActorsToIgnore)
+	for (AActor* Actor : AllActors)
 	{
 		AObstacle* Obstacle = Cast<AObstacle>(Actor);
-		if (Obstacle != nullptr)
+		if (Obstacle)
 		{
-			Obstacle->OtherObstacles = ActorsToIgnore;
+			// AObstacle의 멤버 변수 사용
+			ActorsToIgnore = Obstacle->OtherObstacles;
+
+			// 멤버 변수 값을 로그로 출력
 		}
 	}
 }
-
 // Called every frame
 void ABoxCharacter::Tick(float DeltaTime)
 {
@@ -238,10 +230,10 @@ bool ABoxCharacter::CastLineToBottom(const FVector& OffSet)
 	//// 액터를 가져오는 방법에 따라 ActorToIgnore를 설정합니다.
 	//ActorToIgnore = GetWorld()->SpawnActor<AObstacle>();
 
-	if (ActorsToIgnore.IsValidIndex(0))
-	{
-		TraceParams.AddIgnoredActors(ActorsToIgnore);
-	}
+
+	TraceParams.AddIgnoredActors(ActorsToIgnore);
+	
+
 	;
 	// Set up the object query parameters
 	FCollisionObjectQueryParams ObjectParams;
@@ -259,7 +251,7 @@ bool ABoxCharacter::CastLineToBottom(const FVector& OffSet)
 	bool bHit = GetWorld()->LineTraceSingleByObjectType(HitResult, OffSet, EndPoint, ObjectParams, TraceParams);
 	
 	// Debug draw the line trace
-	//DrawDebugLine(GetWorld(), OffSet, EndPoint, FColor::Red, true, 2.0f, 0, 0.1f);
+	//DrawDebugLine(GetWorld(), OffSet, EndPoint, FColor::Red, , 2.0f, 0, 10.1f);
 	
 	return bHit;
 	
