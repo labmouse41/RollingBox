@@ -138,12 +138,14 @@ void ABoxCharacter::PlayJumpParticlesOnPoint(const FVector& PlayLocation, UScene
 {
 	if (ParticleOnJump)
 	{
+		//UE_LOG(LogTemp, Warning, TEXT("PlayLocation: %s"), *PlayLocation.ToString());
 		ParticleOnJump->SetRelativeLocation(PlayLocation);
-		Cube->GetPhysicsLinearVelocityAtPoint(CheckVelocityHere->GetRelativeLocation());
-		FVector Param = Cube->GetPhysicsLinearVelocityAtPoint(CheckVelocityHere->GetRelativeLocation()) * 0.01;
-		ParticleOnJump->SetVectorParameter(FName("InheritVelocity"), Param);
+		//UE_LOG(LogTemp, Warning, TEXT("CheckVelocityHere: %s"), *CheckVelocityHere->GetRelativeLocation().ToString());
+		FVector Param = Cube->GetPhysicsLinearVelocityAtPoint(CheckVelocityHere->GetRelativeLocation());
+		ParticleOnJump->SetVectorParameter(FName("InheritVelocity"), Param * 0.01f);
 		ParticleOnJump->ResetSystem();
 		SetAirTime(0.0);
+		//UE_LOG(LogTemp, Warning, TEXT("Jump"));
 	}
 }
 
@@ -154,11 +156,12 @@ void ABoxCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	ParticleOnJump->RegisterComponent();
+	
 	if (ParticleOnJump)
 	{
 		// Niagara 컴포넌트에 사용자 지정 파라미터 설정
 		ParticleOnJump->SetFloatParameter(FName("InitialForce"), InitialForce);
-		ParticleOnJump->SetFloatParameter(FName("SpawnNumber"), SpawnNumber);
+		ParticleOnJump->SetIntParameter(FName("SpawnNumber"), SpawnNumber);
 	}
 
 

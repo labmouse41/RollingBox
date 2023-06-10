@@ -112,11 +112,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Particles")
 	class UNiagaraComponent* ParticleOnJump;
 
-	UPROPERTY(EditAnywhere, Category = "Niagara")
-	float InitialForce;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category = "Niagara")
+	float InitialForce = 155.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Niagara")
-	float SpawnNumber;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Niagara")
+	int32 SpawnNumber = 88;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Obstacle")
 	TArray<class AActor*> ActorsToIgnore;
