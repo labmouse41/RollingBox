@@ -208,7 +208,7 @@ void ABoxCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
 
 		//Moving
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABoxCharacter::Move);
+		//EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABoxCharacter::Move);
 
 		//Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ABoxCharacter::Look);
@@ -319,23 +319,19 @@ void ABoxCharacter::CapMaxSpeed()
 	}
 }
 
-void ABoxCharacter::Move(const FInputActionValue& Value)
+void ABoxCharacter::Move(const FInputActionValue& Value,float Yaw)
 {
 
 	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
-	APlayerController* PlayerController = Cast<APlayerController>(GetController());
 
-	if (PlayerController&&Cube&&OnGround().ReturnValue)
+	if (Cube&&OnGround().ReturnValue)
 	{
-	
-		FRotator ControlRotation = PlayerController->GetControlRotation();
-
-		FRotator RightVectorRotation(0.0f, ControlRotation.Yaw + 90.0f, 0.0f);
+		FRotator RightVectorRotation(0.0f, Yaw + 90.0f, 0.0f);
 		FVector RightVector = RightVectorRotation.Vector();
 		//RightVector.Z = 0.0f;
 
-		FRotator ForwardVectorRotation(0.0f, ControlRotation.Yaw, 0.0f);
+		FRotator ForwardVectorRotation(0.0f, Yaw, 0.0f);
 		FVector ForwardVector = ForwardVectorRotation.Vector();
 		//ForwardVector.Z = 0.0f;
 		Accel = 999999.0f;
