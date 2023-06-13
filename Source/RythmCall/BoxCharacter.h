@@ -126,7 +126,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
-	void Move(const FInputActionValue& Value);
+	void Move(const FInputActionValue& Value,float Yaw);
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
